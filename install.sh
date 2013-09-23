@@ -4,7 +4,8 @@
 
 # === Configuration ===
 # Edit these variables
-
+# Do not '/' terminate this path
+sourceLocation=/var/gitlab
 mysqlRoot=RootPassword
 mysqlGitlab=SomePassword
 hostname=example.com
@@ -59,12 +60,17 @@ gem install bundler --no-ri --no-rdoc
 print "3. System Users: Create a git user for Gitlab"
 adduser --disabled-login --gecos 'GitLab' git
 
+# Store all the Gitlab source here
+mkdir $sourceLocation
+
 print "4. GitLab shell"
-cd /home/git
+cd $sourceLocation
 sudo -u git -H git clone https://github.com/gitlabhq/gitlab-shell.git
 cd gitlab-shell
 sudo -u git -H git checkout v1.7.0
 sudo -u git -H cp config.yml.example config.yml
+# TO-DO: add more config changes as necc.
+# TO-DO: update for $sourceLocation/gitlab-satellites location
 sed -i -e "s/localhost/127.0.0.1/g" config.yml
 sudo -u git -H ./bin/install
 
@@ -93,20 +99,22 @@ echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, \
   --user=root --password=$mysqlRoot
 
 print "6. GitLab: Clone from source"
-cd /home/git
+cd $sourceLocation
 sudo -u git -H git clone https://github.com/gitlabhq/gitlabhq.git gitlab
-cd /home/git/gitlab
+cd $sourceLocation/gitlab
 sudo -u git -H git checkout 6-0-stable
 
 print "6. GitLab: Configure it"
-cd /home/git/gitlab
+cd $sourceLocation/gitlab
 sudo -u git -H cp config/gitlab.yml.example config/gitlab.yml
+# TO-DO: add config changes here as necc.
+# TO-DO: update for /var/gitlab/gitlab-satellites location
 sed -i -e "s/localhost/$hostname/g" config/gitlab.yml
 chown -R git log/
 chown -R git tmp/
 chmod -R u+rwX  log/
 chmod -R u+rwX  tmp/
-sudo -u git -H mkdir /home/git/gitlab-satellites
+sudo -u git -H mkdir $sourceLocation/gitlab-satellites
 sudo -u git -H mkdir tmp/pids/
 sudo -u git -H mkdir tmp/sockets/
 chmod -R u+rwX  tmp/pids/
@@ -114,8 +122,9 @@ chmod -R u+rwX  tmp/sockets/
 sudo -u git -H mkdir public/uploads
 chmod -R u+rwX  public/uploads
 sudo -u git -H cp config/unicorn.rb.example config/unicorn.rb
+# TO-DO: add config changes for unicorn here as necc.
 sudo -u git -H git config --global user.name "GitLab"
-sudo -u git -H git config --global user.email "gitlab@localhost"
+sudo -u git -H git config --global user.email "gitlab@$hostname"
 sudo -u git -H git config --global core.autocrlf input
 
 print "6. GitLab: Configure GitLab DB settings"
@@ -125,7 +134,7 @@ sed -i -e "s/secure password/$mysqlGitlab/g" config/database.yml
 sudo -u git -H chmod o-rwx config/database.yml
 
 print "6. GitLab: Install Gems"
-cd /home/git/gitlab
+cd $sourceLocation/gitlab
 gem install charlock_holmes --version '0.6.9.4'
 sudo -u git -H bundle install --deployment --without \
   development test postgres aws
@@ -140,6 +149,7 @@ sudo -u git -H bundle exec rake gitlab:setup force=yes RAILS_ENV=production
 
 print "6. GitLab: Install init scripts"
 cp lib/support/init.d/gitlab /etc/init.d/gitlab
+# TO-DO: possibly need to update this script for $sourceLocation location...
 chmod +x /etc/init.d/gitlab
 update-rc.d gitlab defaults 21
 
@@ -147,6 +157,9 @@ print "7. Nginx: Installation"
 apt-get install -y nginx
 
 print "7. Nginx: Site Configuration"
+# TO-DO: add SSL support here
+# TO-DO: copy SSL key/cert from install.sh location
+# TO-DO: add SSL to nginx config
 cp lib/support/nginx/gitlab /etc/nginx/sites-available/gitlab
 ln -s /etc/nginx/sites-available/gitlab /etc/nginx/sites-enabled/gitlab
 sed -i -e "s/YOUR_SERVER_FQDN/$hostname/g" /etc/nginx/sites-available/gitlab
