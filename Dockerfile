@@ -1,6 +1,10 @@
 FROM ubuntu:12.04
 
-ADD . /src/build
+ADD ./etc/ssl_certs/* /etc/ssl_certs/gitlab
+
+ADD ./etc/nginx/gitlab.example.config /etc/nginx/sites-available/gitlab_ssl
+
+ADD ./build/* /src/build
 RUN chmod +x /src/build/install.sh
 RUN /src/build/install.sh
 
