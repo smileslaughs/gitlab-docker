@@ -6,7 +6,7 @@ ADD ./etc/nginx/gitlab.example.config /etc/nginx/sites-available/gitlab_ssl
 
 ADD ./etc/ssh/ /etc/ssh
 
-ADD ./build/* /src/build
+ADD ./build/ /src/build
 RUN chmod +x /src/build/install.sh
 RUN /src/build/install.sh
 
