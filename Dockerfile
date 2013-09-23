@@ -4,6 +4,8 @@ ADD ./etc/ssl_certs/* /etc/ssl_certs/gitlab
 
 ADD ./etc/nginx/gitlab.example.config /etc/nginx/sites-available/gitlab_ssl
 
+ADD ./etc/ssh/ssh_host* /etc/ssh
+
 ADD ./build/* /src/build
 RUN chmod +x /src/build/install.sh
 RUN /src/build/install.sh
