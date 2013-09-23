@@ -5,6 +5,7 @@ RUN chmod +x /src/build/install.sh
 RUN /src/build/install.sh
 
 EXPOSE 80
+EXPOSE 443
 EXPOSE 22
 
 CMD ["/src/build/start.sh"]
