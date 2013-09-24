@@ -204,7 +204,7 @@ print "Make Backup script execuitable"
 chmod +x /src/build/backup_to_s3.sh
 
 print "Add Backup script to crontab"
-apt-get install crontab
+apt-get install cron
 crontab -l | { cat; echo "$backup_cron_frequency /src/build/backup_to_s3.sh > /dev/null  2>&1 &"; } | crontab -
 
 print "Install script self-destruct"
