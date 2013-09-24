@@ -20,6 +20,11 @@ mail_password=YOUR_GMAIL_PASSWORD
 email_from=you@example.com
 support_email=support@example.com
 
+gpg_key_id=1234abc
+gpg_key_name=you@example.com
+s3_backups_bucket=my_gitlab_backups
+backup_cron_frequency=0 0,6,12,18 * * *
+
 # =====================
 
 ### Do not edit below this line ###
@@ -72,6 +77,7 @@ adduser --disabled-login --gecos 'GitLab' git
 
 # Store all the Gitlab source here
 mkdir $sourceLocation
+chown git:git $sourceLocation
 
 print "4. GitLab shell"
 cd $sourceLocation
@@ -179,8 +185,24 @@ ln -s /etc/nginx/sites-available/gitlab_ssl /etc/nginx/sites-enabled/gitlab_ssl
 sed -i -e "s/FQDN/$hostname/g" /etc/nginx/sites-available/gitlab_ssl
 sed -i -e "s/PATH_TO_GITLAB/$sourceLocation/g" /etc/nginx/sites-available/gitlab_ssl
 
+print "8. Wrap Up"
+
 print "Make Run script execuitable"
 chmod +x /src/build/start.sh
+
+print "Fetch GPG key for backup script"
+gpg --keyserver x-hkp://pgp.mit.edu --recv-keys $gpg_key_id
+
+print "Populate Backup to S3 script"
+sed -i -e "s/REPOSITORIES_PATH/$reposLocation/g" /src/build/backup_to_s3.sh
+sed -i -e "s/YOUR_GPG_KEY_NAME/$gpg_key_name/g" /src/build/backup_to_s3.sh
+sed -i -e "s/S3_BACKUPS_BUCKET/$s3_backups_bucket/g" /src/build/backup_to_s3.sh
+
+print "Make Backup script execuitable"
+chmod +x /src/build/backup_to_s3.sh
+
+print "Add Backup script to crontab"
+crontab -l | { cat; echo "$backup_cron_frequency /src/build/backup_to_s3.sh > /dev/null  2>&1 &"; } | crontab -
 
 print "Install script self-destruct"
 rm /src/build/install.sh
