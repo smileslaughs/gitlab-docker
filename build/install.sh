@@ -193,7 +193,7 @@ print "Make Run script execuitable"
 chmod +x /src/build/start.sh
 
 print "Fetch GPG key for backup script"
-gpg --keyserver x-hkp://pgp.mit.edu --recv-keys $gpg_key_id
+gpg --keyserver x-hkp://keys.gnupg.net --recv-keys $gpg_key_id
 
 print "Populate Backup to S3 script"
 sed -i -e "s@REPOSITORIES_PATH@$reposLocation@g" /src/build/backup_to_s3.sh
