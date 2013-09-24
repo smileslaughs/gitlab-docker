@@ -1,5 +1,5 @@
-config.action_mailer.delivery_method = :smtp
-config.action_mailer.smtp_settings = {
+ActionMailer::Base.delivery_method = :smtp
+ActionMailer::Base.smtp_settings = {
   :address => 'MAIL_ADDRESS',
   :port => MAIL_PORT,
   :domain => 'MAIL_DOMAIN',
