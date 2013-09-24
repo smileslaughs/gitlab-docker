@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Script is based on https://github.com/gitlabhq/gitlabhq/blob/5-4-stable/doc/install/installation.md
 
