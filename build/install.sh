@@ -16,6 +16,7 @@ mail_address=smtp.gmail.com
 mail_port=587
 mail_domain=gmail.com
 mail_username=YOUR_GMAIL_USERNAME
+# Cannot have an '@' in your password due to sed delimited with @.
 mail_password=YOUR_GMAIL_PASSWORD
 
 email_from=you@example.com
@@ -124,9 +125,9 @@ print "6. GitLab: Configure it"
 cd $sourceLocation/gitlab
 sudo -u git -H cp config/gitlab.yml.example config/gitlab.yml
 sed -i -e "s@localhost@$hostname@g" config/gitlab.yml
-sed -i -e "s@email_from@$email_from@g" config/gitlab.yml
-sed -i -e "s@support_email@$support_email@g" config/gitlab.yml
-sed -i -e "s@\/home\/git\/repositories@$reposLocation@g" config/gitlab.yml
+sed -i -e "s!gitlab@example.com!$email_from!g" config/gitlab.yml
+sed -i -e "s!support@example.com!$support_email!g" config/gitlab.yml
+sed -i -e "s@\/home\/git\/repositories\/@$reposLocation\/@g" config/gitlab.yml
 sed -i -e "s@\/home\/git@$sourceLocation@g" config/gitlab.yml
 chown -R git log/
 chown -R git tmp/
@@ -148,7 +149,7 @@ cp /src/build/gitlab/mail.rb $sourceLocation/gitlab/config/initializers/mail.rb
 sed -i -e "s@MAIL_ADDRESS@$mail_address@g" $sourceLocation/gitlab/config/initializers/mail.rb
 sed -i -e "s@MAIL_PORT@$mail_port@g" $sourceLocation/gitlab/config/initializers/mail.rb
 sed -i -e "s@MAIL_DOMAIN@$mail_domain@g" $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s@MAIL_USERNAME@$mail_username@g" $sourceLocation/gitlab/config/initializers/mail.rb
+sed -i -e "s!MAIL_USERNAME!$mail_username!g" $sourceLocation/gitlab/config/initializers/mail.rb
 sed -i -e "s@MAIL_PASSWORD@$mail_password@g" $sourceLocation/gitlab/config/initializers/mail.rb
 sed -i -e "s@config.action_mailer.delivery_method = :sendmail@config.action_mailer.delivery_method = :smtp@g" $sourceLocation/gitlab/config/environments/production.rb
 
@@ -196,7 +197,7 @@ gpg --keyserver x-hkp://pgp.mit.edu --recv-keys $gpg_key_id
 
 print "Populate Backup to S3 script"
 sed -i -e "s@REPOSITORIES_PATH@$reposLocation@g" /src/build/backup_to_s3.sh
-sed -i -e "s@YOUR_GPG_KEY_NAME@$gpg_key_name@g" /src/build/backup_to_s3.sh
+sed -i -e "s!YOUR_GPG_KEY_NAME!$gpg_key_name!g" /src/build/backup_to_s3.sh
 sed -i -e "s@S3_BACKUPS_BUCKET@$s3_backups_bucket@g" /src/build/backup_to_s3.sh
 
 print "Make Backup script execuitable"
