@@ -85,8 +85,8 @@ sudo -u git -H git clone https://github.com/gitlabhq/gitlab-shell.git
 cd gitlab-shell
 sudo -u git -H git checkout v1.7.0
 sudo -u git -H cp config.yml.example config.yml
-sed -i -e "s/localhost/127.0.0.1/g" config.yml
-sed -i -e "s/\/home\/git\/repositories/$reposLocation/g" config.yml
+sed -i -e s@localhost@127.0.0.1@g config.yml
+sed -i -e s@\/home\/git\/repositories@$reposLocation@g config.yml
 sudo -u git -H ./bin/install
 
 print "5. Database: Install the database packages"
@@ -122,11 +122,11 @@ sudo -u git -H git checkout 6-0-stable
 print "6. GitLab: Configure it"
 cd $sourceLocation/gitlab
 sudo -u git -H cp config/gitlab.yml.example config/gitlab.yml
-sed -i -e "s/localhost/$hostname/g" config/gitlab.yml
-sed -i -e "s/email_from/$email_from/g" config/gitlab.yml
-sed -i -e "s/support_email/$support_email/g" config/gitlab.yml
-sed -i -e "s/\/home\/git\/repositories/$reposLocation/g" config/gitlab.yml
-sed -i -e "s/\/home\/git/$sourceLocation/g" config/gitlab.yml
+sed -i -e s@localhost@$hostname@g config/gitlab.yml
+sed -i -e s@email_from@$email_from@g config/gitlab.yml
+sed -i -e s@support_email@$support_email@g config/gitlab.yml
+sed -i -e s@\/home\/git\/repositories@$reposLocation@g config/gitlab.yml
+sed -i -e s@\/home\/git@$sourceLocation@g config/gitlab.yml
 chown -R git log/
 chown -R git tmp/
 chmod -R u+rwX  log/
@@ -139,22 +139,22 @@ chmod -R u+rwX  tmp/sockets/
 sudo -u git -H mkdir public/uploads
 chmod -R u+rwX  public/uploads
 sudo -u git -H cp config/unicorn.rb.example config/unicorn.rb
-sed -i -e "s/\/home\/git/$sourceLocation/g" config/unicorn.rb
+sed -i -e s@\/home\/git@$sourceLocation@g config/unicorn.rb
 sudo -u git -H git config --global user.name "GitLab"
 sudo -u git -H git config --global user.email "gitlab@$hostname"
 sudo -u git -H git config --global core.autocrlf input
 cp /src/build/gitlab/mail.rb $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s/MAIL_ADDRESS/$mail_address/g" $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s/MAIL_PORT/$mail_port/g" $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s/MAIL_DOMAIN/$mail_domain/g" $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s/MAIL_USERNAME/$mail_username/g" $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s/MAIL_PASSWORD/$mail_password/g" $sourceLocation/gitlab/config/initializers/mail.rb
-sed -i -e "s/config.action_mailer.delivery_method = :sendmail/config.action_mailer.delivery_method = :smtp/g" $sourceLocation/gitlab/config/environments/production.rb
+sed -i -e s@MAIL_ADDRESS@$mail_address@g $sourceLocation/gitlab/config/initializers/mail.rb
+sed -i -e s@MAIL_PORT@$mail_port@g $sourceLocation/gitlab/config/initializers/mail.rb
+sed -i -e s@MAIL_DOMAIN@$mail_domain@g $sourceLocation/gitlab/config/initializers/mail.rb
+sed -i -e s@MAIL_USERNAME@$mail_username@g $sourceLocation/gitlab/config/initializers/mail.rb
+sed -i -e s@MAIL_PASSWORD@$mail_password@g $sourceLocation/gitlab/config/initializers/mail.rb
+sed -i -e s@config.action_mailer.delivery_method = :sendmail@config.action_mailer.delivery_method = :smtp@g $sourceLocation/gitlab/config/environments/production.rb
 
 print "6. GitLab: Configure GitLab DB settings"
 sudo -u git -H cp config/database.yml.mysql config/database.yml
-sed -i -e "s/root/gitlab/g" config/database.yml
-sed -i -e "s/secure password/$mysqlGitlab/g" config/database.yml
+sed -i -e s@root@gitlab@g config/database.yml
+sed -i -e s@secure password@$mysqlGitlab@g config/database.yml
 sudo -u git -H chmod o-rwx config/database.yml
 
 print "6. GitLab: Install Gems"
@@ -173,7 +173,7 @@ sudo -u git -H bundle exec rake gitlab:setup force=yes RAILS_ENV=production
 
 print "6. GitLab: Install init scripts"
 cp lib/support/init.d/gitlab /etc/init.d/gitlab
-sed -i -e "s/\/home\/git/$sourceLocation/g" /etc/init.d/gitlab
+sed -i -e s@\/home\/git@$sourceLocation@g /etc/init.d/gitlab
 chmod +x /etc/init.d/gitlab
 update-rc.d gitlab defaults 21
 
@@ -182,8 +182,8 @@ apt-get install -y nginx
 
 print "7. Nginx: Site Configuration"
 ln -s /etc/nginx/sites-available/gitlab_ssl /etc/nginx/sites-enabled/gitlab_ssl
-sed -i -e "s/FQDN/$hostname/g" /etc/nginx/sites-available/gitlab_ssl
-sed -i -e "s/PATH_TO_GITLAB/$sourceLocation/g" /etc/nginx/sites-available/gitlab_ssl
+sed -i -e s@FQDN@$hostname@g /etc/nginx/sites-available/gitlab_ssl
+sed -i -e s@PATH_TO_GITLAB@$sourceLocation@g /etc/nginx/sites-available/gitlab_ssl
 
 print "8. Wrap Up"
 
@@ -194,14 +194,15 @@ print "Fetch GPG key for backup script"
 gpg --keyserver x-hkp://pgp.mit.edu --recv-keys $gpg_key_id
 
 print "Populate Backup to S3 script"
-sed -i -e "s/REPOSITORIES_PATH/$reposLocation/g" /src/build/backup_to_s3.sh
-sed -i -e "s/YOUR_GPG_KEY_NAME/$gpg_key_name/g" /src/build/backup_to_s3.sh
-sed -i -e "s/S3_BACKUPS_BUCKET/$s3_backups_bucket/g" /src/build/backup_to_s3.sh
+sed -i -e s@REPOSITORIES_PATH@$reposLocation@g /src/build/backup_to_s3.sh
+sed -i -e s@YOUR_GPG_KEY_NAME@$gpg_key_name@g /src/build/backup_to_s3.sh
+sed -i -e s@S3_BACKUPS_BUCKET@$s3_backups_bucket@g /src/build/backup_to_s3.sh
 
 print "Make Backup script execuitable"
 chmod +x /src/build/backup_to_s3.sh
 
 print "Add Backup script to crontab"
+apt-get install crontab
 crontab -l | { cat; echo "$backup_cron_frequency /src/build/backup_to_s3.sh > /dev/null  2>&1 &"; } | crontab -
 
 print "Install script self-destruct"
