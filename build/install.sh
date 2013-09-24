@@ -23,7 +23,7 @@ support_email=support@example.com
 gpg_key_id=1234abc
 gpg_key_name=you@example.com
 s3_backups_bucket=my_gitlab_backups
-backup_cron_frequency=0 0,6,12,18 * * *
+backup_cron_frequency="0 0,6,12,18 * * *"
 
 # =====================
 
