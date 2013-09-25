@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # start SSH
+killall -9 sshd
 /usr/sbin/sshd
 
 # start mysql
