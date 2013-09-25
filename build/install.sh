@@ -58,7 +58,6 @@ apt-get -y install git
 # Manually create /var/run/sshd
 mkdir /var/run/sshd
 sed -i -e "s@#PasswordAuthentication yes@PasswordAuthentication no@g" /etc/ssh/sshd_config
-killall sshd
 
 print "1. Packages / Dependencies: Install Python"
 apt-get install -y python python-docutils
