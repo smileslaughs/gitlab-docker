@@ -48,7 +48,7 @@ print "1. Packages / Dependencies: Install the required packages"
 apt-get install -y build-essential zlib1g-dev libyaml-dev libssl-dev \
   libgdbm-dev libreadline-dev libncurses5-dev libffi-dev curl \
   openssh-server redis-server checkinstall libxml2-dev libxslt-dev \
-  libcurl4-openssl-dev libicu-dev sudo python-software-properties
+  libcurl4-openssl-dev libicu-dev sudo python-software-properties nano cron
 
 # Get a more recent version of Git
 add-apt-repository -y ppa:git-core/ppa
@@ -184,12 +184,14 @@ apt-get install -y nginx
 
 print "7. Nginx: Site Configuration"
 ln -s /etc/nginx/sites-available/gitlab_ssl /etc/nginx/sites-enabled/gitlab_ssl
+sed -i -e "s@# server_names_hash_bucket_size 64@server_names_hash_bucket_size 64@g" /etc/nginx/nginx.conf
 sed -i -e "s@FQDN@$hostname@g" /etc/nginx/sites-available/gitlab_ssl
 sed -i -e "s@PATH_TO_GITLAB@$sourceLocation@g" /etc/nginx/sites-available/gitlab_ssl
 
 print "8. Wrap Up"
 
 print "Make Run script execuitable"
+sed -i -e "s@\/home\/git@$sourceLocation@g" /src/build/start.sh
 chmod +x /src/build/start.sh
 
 print "Fetch GPG key for backup script"
@@ -204,7 +206,6 @@ print "Make Backup script execuitable"
 chmod +x /src/build/backup_to_s3.sh
 
 print "Add Backup script to crontab"
-apt-get install cron
 crontab -l | { cat; echo "$backup_cron_frequency /src/build/backup_to_s3.sh > /dev/null  2>&1 &"; } | crontab -
 
 print "Install script self-destruct"
