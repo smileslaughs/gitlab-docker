@@ -57,6 +57,8 @@ apt-get -y install git
 
 # Manually create /var/run/sshd
 mkdir /var/run/sshd
+sed -i -e "s@#PasswordAuthentication yes@PasswordAuthentication no@g" /etc/ssh/sshd_config
+killall sshd
 
 print "1. Packages / Dependencies: Install Python"
 apt-get install -y python python-docutils
@@ -87,7 +89,7 @@ sudo -u git -H git clone https://github.com/gitlabhq/gitlab-shell.git
 cd gitlab-shell
 sudo -u git -H git checkout v1.7.0
 sudo -u git -H cp config.yml.example config.yml
-sed -i -e "s@localhost@127.0.0.1@g" config.yml
+sed -i -e "s@http:\/\/localhost@https:\/\/$hostname@g" config.yml
 sed -i -e "s@\/home\/git\/repositories@$reposLocation@g" config.yml
 sudo -u git -H ./bin/install
 
